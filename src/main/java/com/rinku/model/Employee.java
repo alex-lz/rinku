@@ -52,7 +52,7 @@ public class Employee {
 		this.nombre = nombre;
 	}
 	
-	@Column(name = "apellido_", nullable = false)
+	@Column(name = "apellido_p", nullable = false)
 	public String getApellido_p() {
 		return apellido_p;
 	}
