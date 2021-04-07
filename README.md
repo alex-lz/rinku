@@ -44,3 +44,45 @@ CREATE TABLE movements(
 );
 INSERT INTO movements VALUES(2, '2021-04-06', 10, true, 'Chofer');
 ```
+
+```
+CREATE OR REPLACE PROCEDURE nomina_by_emp (INOUT emp INT, IN emp_fecha Text)
+LANGUAGE plpgsql 
+AS $$
+DECLARE 
+  var_rol employees.rol%type;
+  var_bono INT;
+  var_sueldo INT;
+  var_entregas INT;
+BEGIN
+  -- get the rol
+  SELECT rol INTO var_rol
+  FROM employees 
+  WHERE numero = emp;
+  
+  -- assign the bono
+  IF FOUND THEN
+     CASE var_rol
+	 WHEN 'Chofer' THEN var_bono = 10;
+	 WHEN 'Cargador' THEN var_bono = 5;
+	 WHEN 'Auxiliar' THEN var_bono = 0;
+	 ELSE var_bono = 0;
+	 END CASE;
+  END IF;
+  
+  -- get sueldo + bono
+  SELECT COUNT(*)*8*(30+5) INTO var_sueldo
+  FROM movements 
+  WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+  
+  -- get entregas
+  SELECT SUM(entregas) INTO var_entregas
+  FROM movements 
+  WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+  
+ emp = var_bono;
+ RETURN;
+END ;$$;
+
+call nomina_by_emp(5, '2021-04-06');
+```

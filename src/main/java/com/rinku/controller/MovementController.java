@@ -25,7 +25,7 @@ import com.rinku.repository.MovementRepository;
 public class MovementController {
     @Autowired
     private MovementRepository movementRepository;
-
+    
     @GetMapping("/movement/all")
     public List<Movement> getAllMovements() {
         return movementRepository.findAll();
