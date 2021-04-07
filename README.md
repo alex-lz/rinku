@@ -93,13 +93,8 @@ BEGIN
 	 END CASE;
   END IF;
   
-  -- get sueldo + bono
-  SELECT COUNT(*)*8*(30+10) INTO var_bono
-  FROM movements 
-  WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
-  
   -- get entregas
-  SELECT SUM(entregas) INTO var_entregas
+  SELECT SUM(entregas)*5 INTO var_entregas
   FROM movements 
   WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
   
@@ -107,7 +102,7 @@ BEGIN
  RETURN;
 END ;$$;
 
-call nomina_by_emp(3, '2021-04-06');
+call nomina_by_emp(2, '2021-04-06');
 ```
 
 > **Nota:** Esta es otra opcion(Working).

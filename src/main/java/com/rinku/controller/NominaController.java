@@ -16,13 +16,16 @@ public class NominaController {
     @PersistenceContext
     private EntityManager em;
     
-    @GetMapping("/nomina/{emp}")
-    public Integer procedureNominaByEmp(@PathVariable(value = "emp") int emp) throws SQLException {
+    @GetMapping("/nomina/{idf}/{ide}")
+    public long procedureNominaByEmp(
+    		@PathVariable(value = "idf") String fecha,
+    		@PathVariable(value = "ide") long numero) throws SQLException {
 
-    	Query query = em.createNativeQuery("call nomina_by_emp(:id)");
-    	query.setParameter("id", emp);
+    	Query query = em.createNativeQuery("call nomina_by_emp(:employee, :fecha)");
+    	query.setParameter("employee", numero);
+    	query.setParameter("fecha", fecha);
     	
-    	return ((Number) query.getSingleResult()).intValue();
+    	return ((Number) query.getSingleResult()).longValue();
     }
 
 }
