@@ -46,6 +46,93 @@ INSERT INTO movements VALUES(2, '2021-04-06', 10, true, 'Chofer');
 ```
 
 ```
+CREATE OR REPLACE PROCEDURE sueldo_mensual_by_emp (IN emp INT8, IN emp_fecha Text, INOUT emp_sueldo TEXT)
+LANGUAGE plpgsql 
+AS $$    
+DECLARE 
+  var_rol employees.rol%type;
+  var_tipo employees.tipo%type;
+  var_bono INT8;
+  var_sueldo INT8;
+  var_entregas INT8;
+  var_nomina DOUBLE PRECISION;
+  var_despensa DOUBLE PRECISION;
+BEGIN
+  -- get rol
+  SELECT rol INTO var_rol
+  FROM employees 
+  WHERE numero = emp;
+  
+  -- get tipo
+  SELECT tipo INTO var_tipo
+  FROM employees 
+  WHERE numero = emp;
+  
+  -- assign bono to calculate sueldo
+  IF FOUND THEN
+     CASE var_rol
+	 WHEN 'Chofer' THEN 
+       SELECT COUNT(*)*8*(30+10) INTO var_bono
+       FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+	   var_sueldo = var_bono;
+	 WHEN 'Cargador' THEN 
+       SELECT COUNT(*)*8*(30+5) INTO var_bono
+       FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+	   var_sueldo = var_bono;
+	 WHEN 'Auxiliar' THEN 
+	   SELECT COUNT(*)*8*(30+10) INTO var_bono
+	   FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7) 
+	   AND cubrio = TRUE AND rol = 'Chofer';
+	   var_sueldo = var_bono;
+	   SELECT COUNT(*)*8*(30+5) INTO var_bono
+	   FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7) 
+	   AND cubrio = TRUE AND rol = 'Cargador';
+	   var_sueldo = var_sueldo + var_bono;
+	   SELECT COUNT(*)*8*(30+0) INTO var_bono
+	   FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7) 
+	   AND cubrio = FALSE;
+	   var_sueldo = var_sueldo + var_bono;
+	 ELSE var_sueldo = 0;
+	 END CASE;
+  END IF;
+  
+  -- get entregas
+  SELECT SUM(entregas)*5 INTO var_entregas
+  FROM movements 
+  WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+  
+  --Calculate despensa y nomina
+  IF var_tipo like 'Interno' THEN
+     var_despensa = (var_sueldo + var_entregas)*0.4;
+     var_nomina = (var_sueldo + var_entregas)*0.96;
+  ELSE
+     var_despensa = 0;
+     var_nomina = var_sueldo + var_entregas;
+  END IF;
+  
+  --Descontar ISR
+  IF var_nomina > 16000 THEN
+     var_nomina = var_nomina * 0.88;
+  ELSE
+     var_nomina = var_nomina * 0.91;
+  END IF;
+ 
+ emp_sueldo = CONCAT ('Nomina: ', var_nomina, ' Despensa: ', var_despensa, ' Total: ', (var_nomina+var_despensa));
+ --emp_despensa = var_despensa;
+ RETURN;  
+END ;$$;
+
+call sueldo_mensual_by_emp(2, '2021-04-06', '');
+```
+
+
+> **Nota:** Esta es otra opcion(Working).
+```
 CREATE OR REPLACE PROCEDURE nomina_by_emp (INOUT emp INT, IN emp_fecha Text)
 LANGUAGE plpgsql 
 AS $$
