@@ -53,7 +53,7 @@ public class MovementController {
 
     @PutMapping("/update/movement/{idf}/{idn}")
     public ResponseEntity<Movement> updateMovement(
-    	 @PathVariable(value = "idf") String fecha,
+         @PathVariable(value = "idf") String fecha,
     	 @PathVariable(value = "idn") long numero,
          @Valid @RequestBody Movement movementDetails) throws ResourceNotFoundException {
     	MovementId movementId = new  MovementId();
@@ -76,9 +76,15 @@ public class MovementController {
         return ResponseEntity.ok(updatedMovement);
     }
 
-    @DeleteMapping("/delete/movement/{id}")
-    public Map<String, Boolean> deleteMovement(@PathVariable(value = "id") MovementId movementId)
+    @DeleteMapping("/delete/movement/{idf}/{idn}")
+    public Map<String, Boolean> deleteMovement(
+    	 @PathVariable(value = "idf") String fecha,
+       	 @PathVariable(value = "idn") long numero)
          throws ResourceNotFoundException {
+    	MovementId movementId = new  MovementId();
+    	movementId.setFecha(fecha);
+    	movementId.setNumero(numero);
+    	
         Movement movement = movementRepository.findById(movementId)
        .orElseThrow(() -> new ResourceNotFoundException("Movement not found for this id :: " + movementId));
 
