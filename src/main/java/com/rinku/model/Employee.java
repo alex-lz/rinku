@@ -84,6 +84,12 @@ public class Employee {
 		this.tipo = tipo;
 	}
 
+	@Override
+	public String toString() {
+		return "Employee [numero=" + numero + ", nombre=" + nombre + ", apellido_p=" + apellido_p + ", apellido_m="
+				+ apellido_m + ", rol=" + rol + ", tipo=" + tipo + "]";
+	}
+
 }
 
 

@@ -29,3 +29,18 @@ CREATE TABLE employees(
    tipo VARCHAR (7) NOT NULL
 );
 ```
+
+```
+CREATE TABLE movements(
+   numero INT NOT NULL,
+   fecha VARCHAR (10) NOT NULL,
+   entregas INT NOT NULL,
+   cubrio BOOL NOT NULL,
+   rol VARCHAR (8) NOT NULL,
+   PRIMARY KEY(numero,fecha),
+   CONSTRAINT fk_employees
+      FOREIGN KEY(numero) 
+	      REFERENCES employees(numero)
+);
+INSERT INTO movements VALUES(2, '2021-04-06', 10, true, 'Chofer');
+```
