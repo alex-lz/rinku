@@ -60,6 +60,72 @@ BEGIN
   FROM employees 
   WHERE numero = emp;
   
+  -- assign bono to calculate sueldo
+  IF FOUND THEN
+     CASE var_rol
+	 WHEN 'Chofer' THEN 
+       SELECT COUNT(*)*8*(30+10) INTO var_bono
+       FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+	   var_sueldo = var_bono;
+	 WHEN 'Cargador' THEN 
+       SELECT COUNT(*)*8*(30+5) INTO var_bono
+       FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+	   var_sueldo = var_bono;
+	 WHEN 'Auxiliar' THEN 
+	   SELECT COUNT(*)*8*(30+10) INTO var_bono
+	   FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7) 
+	   AND cubrio = TRUE AND rol = 'Chofer';
+	   var_sueldo = var_bono;
+	   SELECT COUNT(*)*8*(30+5) INTO var_bono
+	   FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7) 
+	   AND cubrio = TRUE AND rol = 'Cargador';
+	   var_sueldo = var_sueldo + var_bono;
+	   SELECT COUNT(*)*8*(30+0) INTO var_bono
+	   FROM movements 
+       WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7) 
+	   AND cubrio = FALSE;
+	   var_sueldo = var_sueldo + var_bono;
+	 ELSE var_sueldo = 0;
+	 END CASE;
+  END IF;
+  
+  -- get sueldo + bono
+  SELECT COUNT(*)*8*(30+10) INTO var_bono
+  FROM movements 
+  WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+  
+  -- get entregas
+  SELECT SUM(entregas) INTO var_entregas
+  FROM movements 
+  WHERE numero = emp AND SUBSTRING(fecha,1,7) like SUBSTRING(emp_fecha,1,7);
+  
+ emp = var_sueldo;
+ RETURN;
+END ;$$;
+
+call nomina_by_emp(3, '2021-04-06');
+```
+
+> **Nota:** Esta es otra opcion(Working).
+```
+CREATE OR REPLACE PROCEDURE nomina_by_emp (INOUT emp INT, IN emp_fecha Text)
+LANGUAGE plpgsql 
+AS $$
+DECLARE 
+  var_rol employees.rol%type;
+  var_bono INT;
+  var_sueldo INT;
+  var_entregas INT;
+BEGIN
+  -- get the rol
+  SELECT rol INTO var_rol
+  FROM employees 
+  WHERE numero = emp;
+  
   -- assign the bono
   IF FOUND THEN
      CASE var_rol
