@@ -68,7 +68,7 @@ public class MovementController {
        
         //movement.setNumero(movementDetails.getNumero());
         //movement.setFecha(movementDetails.getFecha());
-        movement.setMovementId(movementId);
+        //movement.setMovementId(movementId);
         movement.setMovementId(movementDetails.getMovementId());
         movement.setEntregas(movementDetails.getEntregas());
         movement.setCubrio(movementDetails.isCubrio());
